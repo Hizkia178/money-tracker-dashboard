@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Swal from "sweetalert2";
 import { Dashboard } from "../Dashboard";
 import { Button } from "@/components/ui/button";
@@ -162,7 +162,7 @@ export default function AddTransaction() {
     { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800", icon: XCircle },
   ];
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const newTransaction: Transaction = {
       id: transactions.length + 1,
