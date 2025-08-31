@@ -1,13 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { Dashboard } from "../Dashboard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -22,9 +21,7 @@ import {
   User,
   Mail,
   Phone,
-  MapPin,
   Calendar,
-  Briefcase,
   Settings,
   Shield,
   Bell,
@@ -32,17 +29,13 @@ import {
   Camera,
   Save,
   Edit,
-  Globe,
   Lock,
-  Eye,
-  EyeOff,
   Smartphone,
   Monitor,
   Moon,
   Sun,
   Volume2,
   VolumeX,
-  Palette,
   Languages,
   Target,
   CheckCircle,
@@ -76,8 +69,6 @@ interface NotificationSettings {
 interface SecuritySettings {
   twoFactorAuth: boolean;
   loginAlerts: boolean;
-  sessionTimeout: string;
-  passwordExpiry: string;
 }
 
 interface PreferenceSettings {
@@ -92,7 +83,6 @@ interface PreferenceSettings {
 export default function Profile() {
   const [activeTab, setActiveTab] = useState("profile");
   const [isEditing, setIsEditing] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const [profile, setProfile] = useState<UserProfile>({
     firstName: "John",
@@ -122,8 +112,6 @@ export default function Profile() {
   const [security, setSecurity] = useState<SecuritySettings>({
     twoFactorAuth: true,
     loginAlerts: true,
-    sessionTimeout: "30",
-    passwordExpiry: "90",
   });
 
   const [preferences, setPreferences] = useState<PreferenceSettings>({
@@ -142,14 +130,22 @@ export default function Profile() {
   ];
 
   const countries = [
-    { value: "us", label: "United States" },
-    { value: "ca", label: "Canada" },
-    { value: "uk", label: "United Kingdom" },
-    { value: "au", label: "Australia" },
-    { value: "de", label: "Germany" },
-    { value: "fr", label: "France" },
-    { value: "jp", label: "Japan" },
-    { value: "sg", label: "Singapore" },
+    { value: "us", label: "United States", flag: "🇺🇸" },
+    { value: "ca", label: "Canada", flag: "🇨🇦" },
+    { value: "uk", label: "United Kingdom", flag: "🇬🇧" },
+    { value: "au", label: "Australia", flag: "🇦🇺" },
+    { value: "de", label: "Germany", flag: "🇩🇪" },
+    { value: "fr", label: "France", flag: "🇫🇷" },
+    { value: "jp", label: "Japan", flag: "🇯🇵" },
+    { value: "sg", label: "Singapore", flag: "🇸🇬" },
+    { value: "cn", label: "China", flag: "🇨🇳" },
+    { value: "in", label: "India", flag: "🇮🇳" },
+    { value: "br", label: "Brazil", flag: "🇧🇷" },
+    { value: "es", label: "Spain", flag: "🇪🇸" },
+    { value: "it", label: "Italy", flag: "🇮🇹" },
+    { value: "kr", label: "South Korea", flag: "🇰🇷" },
+    { value: "ru", label: "Russia", flag: "🇷🇺" },
+    { value: "mx", label: "Mexico", flag: "🇲🇽" },
   ];
 
   const languages = [
@@ -174,22 +170,6 @@ export default function Profile() {
     { value: "light", label: "Light", icon: Sun },
     { value: "dark", label: "Dark", icon: Moon },
     { value: "system", label: "System", icon: Monitor },
-  ];
-
-  const sessionTimeouts = [
-    { value: "15", label: "15 minutes" },
-    { value: "30", label: "30 minutes" },
-    { value: "60", label: "1 hour" },
-    { value: "120", label: "2 hours" },
-    { value: "never", label: "Never" },
-  ];
-
-  const passwordExpiries = [
-    { value: "30", label: "30 days" },
-    { value: "60", label: "60 days" },
-    { value: "90", label: "90 days" },
-    { value: "180", label: "180 days" },
-    { value: "never", label: "Never" },
   ];
 
   const handleProfileSave = () => {
@@ -252,7 +232,7 @@ export default function Profile() {
             <Card className="shadow-lg">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="space-y-2">
                     <CardTitle className="flex items-center gap-2">
                       <User className="h-5 w-5" />
                       Personal Information
@@ -273,7 +253,7 @@ export default function Profile() {
                 <div className="flex items-center gap-6">
                   <Avatar className="h-24 w-24">
                     <AvatarImage src={profile.avatar} />
-                    <AvatarFallback className="text-lg">
+                    <AvatarFallback className="text-lg bg-accent-foreground shadow-lg text-white">
                       {profile.firstName.charAt(0)}{profile.lastName.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
@@ -293,6 +273,7 @@ export default function Profile() {
                     <Label htmlFor="firstName">First Name</Label>
                     <Input
                       id="firstName"
+                      name="firstName"
                       value={profile.firstName}
                       onChange={(e) => setProfile(prev => ({ ...prev, firstName: e.target.value }))}
                       disabled={!isEditing}
@@ -302,6 +283,7 @@ export default function Profile() {
                     <Label htmlFor="lastName">Last Name</Label>
                     <Input
                       id="lastName"
+                      name="lastName"
                       value={profile.lastName}
                       onChange={(e) => setProfile(prev => ({ ...prev, lastName: e.target.value }))}
                       disabled={!isEditing}
@@ -311,6 +293,7 @@ export default function Profile() {
                     <Label htmlFor="email">Email Address</Label>
                     <Input
                       id="email"
+                      name="email"
                       type="email"
                       value={profile.email}
                       onChange={(e) => setProfile(prev => ({ ...prev, email: e.target.value }))}
@@ -321,6 +304,7 @@ export default function Profile() {
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
                       id="phone"
+                      name="phone"
                       value={profile.phone}
                       onChange={(e) => setProfile(prev => ({ ...prev, phone: e.target.value }))}
                       disabled={!isEditing}
@@ -330,6 +314,7 @@ export default function Profile() {
                     <Label htmlFor="dateOfBirth">Date of Birth</Label>
                     <Input
                       id="dateOfBirth"
+                      name="dateOfBirth"
                       type="date"
                       value={profile.dateOfBirth}
                       onChange={(e) => setProfile(prev => ({ ...prev, dateOfBirth: e.target.value }))}
@@ -340,6 +325,7 @@ export default function Profile() {
                     <Label htmlFor="occupation">Occupation</Label>
                     <Input
                       id="occupation"
+                      name="occupation"
                       value={profile.occupation}
                       onChange={(e) => setProfile(prev => ({ ...prev, occupation: e.target.value }))}
                       disabled={!isEditing}
@@ -352,6 +338,7 @@ export default function Profile() {
                     <Label htmlFor="address">Address</Label>
                     <Input
                       id="address"
+                      name="address"
                       value={profile.address}
                       onChange={(e) => setProfile(prev => ({ ...prev, address: e.target.value }))}
                       disabled={!isEditing}
@@ -362,6 +349,7 @@ export default function Profile() {
                       <Label htmlFor="city">City</Label>
                       <Input
                         id="city"
+                        name="city"
                         value={profile.city}
                         onChange={(e) => setProfile(prev => ({ ...prev, city: e.target.value }))}
                         disabled={!isEditing}
@@ -374,13 +362,16 @@ export default function Profile() {
                         onValueChange={(value) => setProfile(prev => ({ ...prev, country: value }))}
                         disabled={!isEditing}
                       >
-                        <SelectTrigger id="country">
+                        <SelectTrigger id="country" name="country" className="w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {countries.map((country) => (
                             <SelectItem key={country.value} value={country.label}>
-                              {country.label}
+                              <div className="flex items-center gap-2">
+                                <span>{country.flag}</span>
+                                {country.label}
+                              </div>
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -391,11 +382,13 @@ export default function Profile() {
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea
                       id="bio"
+                      name="bio"
                       value={profile.bio}
                       onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
                       disabled={!isEditing}
                       rows={4}
                       placeholder="Tell us about yourself..."
+                      className="h-30"
                     />
                   </div>
                 </div>
@@ -424,50 +417,13 @@ export default function Profile() {
                         </div>
                       </div>
                       <Switch
+                        id={option.key}
+                        name={option.key}
                         checked={security[option.key as keyof SecuritySettings] as boolean}
                         onCheckedChange={(checked) => handleSecurityChange(option.key as keyof SecuritySettings, checked)}
                       />
                     </div>
                   ))}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sessionTimeout">Session Timeout</Label>
-                    <Select
-                      value={security.sessionTimeout}
-                      onValueChange={(value) => handleSecurityChange("sessionTimeout", value)}
-                    >
-                      <SelectTrigger id="sessionTimeout">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {sessionTimeouts.map((timeout) => (
-                          <SelectItem key={timeout.value} value={timeout.value}>
-                            {timeout.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="passwordExpiry">Password Expiry</Label>
-                    <Select
-                      value={security.passwordExpiry}
-                      onValueChange={(value) => handleSecurityChange("passwordExpiry", value)}
-                    >
-                      <SelectTrigger id="passwordExpiry">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {passwordExpiries.map((expiry) => (
-                          <SelectItem key={expiry.value} value={expiry.value}>
-                            {expiry.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -494,6 +450,8 @@ export default function Profile() {
                         </div>
                       </div>
                       <Switch
+                        id={option.key}
+                        name={option.key}
                         checked={notifications[option.key as keyof NotificationSettings]}
                         onCheckedChange={(checked) => handleNotificationChange(option.key as keyof NotificationSettings, checked)}
                       />
@@ -521,7 +479,7 @@ export default function Profile() {
                       value={preferences.theme}
                       onValueChange={(value) => handlePreferenceChange("theme", value)}
                     >
-                      <SelectTrigger id="theme">
+                      <SelectTrigger id="theme" name="theme">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -542,7 +500,7 @@ export default function Profile() {
                       value={preferences.language}
                       onValueChange={(value) => handlePreferenceChange("language", value)}
                     >
-                      <SelectTrigger id="language">
+                      <SelectTrigger id="language" name="language">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -563,7 +521,7 @@ export default function Profile() {
                       value={preferences.currency}
                       onValueChange={(value) => handlePreferenceChange("currency", value)}
                     >
-                      <SelectTrigger id="currency">
+                      <SelectTrigger id="currency" name="currency">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -584,7 +542,7 @@ export default function Profile() {
                       value={preferences.dateFormat}
                       onValueChange={(value) => handlePreferenceChange("dateFormat", value)}
                     >
-                      <SelectTrigger id="dateFormat">
+                      <SelectTrigger id="dateFormat" name="dateFormat">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -606,6 +564,8 @@ export default function Profile() {
                       </div>
                     </div>
                     <Switch
+                      id="soundEnabled"
+                      name="soundEnabled"
                       checked={preferences.soundEnabled}
                       onCheckedChange={(checked) => handlePreferenceChange("soundEnabled", checked)}
                     />
@@ -619,6 +579,8 @@ export default function Profile() {
                       </div>
                     </div>
                     <Switch
+                      id="autoSave"
+                      name="autoSave"
                       checked={preferences.autoSave}
                       onCheckedChange={(checked) => handlePreferenceChange("autoSave", checked)}
                     />

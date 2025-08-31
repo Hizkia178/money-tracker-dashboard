@@ -287,6 +287,7 @@ export default function AddTransaction() {
                         render={({ field }) => (
                           <Select
                             {...field}
+                            name="type"
                             onValueChange={field.onChange}
                           >
                             <SelectTrigger id="type" className="w-full">
@@ -353,6 +354,7 @@ export default function AddTransaction() {
                           <Select
                             {...field}
                             onValueChange={field.onChange}
+                            name="category"
                             disabled={!selectedType}
                           >
                             <SelectTrigger id="category" className="w-full">
@@ -419,6 +421,7 @@ export default function AddTransaction() {
                       render={({ field }) => (
                         <Select
                           {...field}
+                          name="status"
                           onValueChange={field.onChange}
                         >
                           <SelectTrigger id="status">
@@ -457,6 +460,7 @@ export default function AddTransaction() {
                   <div className="flex justify-end gap-3">
                     <Button
                       type="button"
+                      name="button"
                       variant="outline"
                       onClick={() => {
                         reset();
@@ -484,7 +488,7 @@ export default function AddTransaction() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => (
             <Card key={`stat-${index}`} className="shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-start space-y-0 pb-2">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
@@ -532,6 +536,7 @@ export default function AddTransaction() {
                   </Select>
                   <Input
                     placeholder="Search by description..."
+                    id="seacth-by-description"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-[200px]"
@@ -542,7 +547,7 @@ export default function AddTransaction() {
             <CardContent>
               <ScrollArea className="h-96">
                 {filteredTransactions.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                  <div className="flex flex-col items-center justify-center h-81 text-center text-muted-foreground">
                     <XCircle className="h-12 w-12 mb-4" />
                     <p className="text-lg font-medium">No Transactions Found</p>
                     <p className="text-sm">Try adjusting your search or filter criteria.</p>

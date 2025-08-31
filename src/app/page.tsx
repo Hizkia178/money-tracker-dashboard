@@ -6,13 +6,16 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  PieChart, 
-  ArrowUpRight, 
+import Swal from "sweetalert2"
+import { useRouter } from "next/navigation"
+import { useConfirmNavigation } from "@/lib/useConfirmNavigation"
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  PieChart,
+  ArrowUpRight,
   ArrowDownRight,
   Calendar,
   Target,
@@ -34,6 +37,22 @@ import {
 } from 'lucide-react'
 
 export default function Home() {
+  const router = useRouter()
+
+  const handleClick = async () => {
+    const result = await Swal.fire({
+      title: "Go to Add Transaction?",
+      text: "You will be redirected to the Add Transaction page.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, go",
+      cancelButtonText: "Cancel",
+    })
+
+    if (result.isConfirmed) {
+      router.push("/add-transaction")
+    }
+  }
   const stats = [
     {
       title: "Total Balance",
@@ -101,11 +120,13 @@ export default function Home() {
   ]
 
   const quickActions = [
-    { icon: Plus, label: "Add Income", color: "text-green-600" },
-    { icon: TrendingDown, label: "Add Expense", color: "text-red-600" },
-    { icon: PieChart, label: "View Reports", color: "text-blue-600" },
-    { icon: Calculator, label: "Budget Tool", color: "text-purple-600" }
+    { icon: Plus, label: "Add Income", color: "text-green-600", path: "/add-transaction" },
+    { icon: TrendingDown, label: "Add Expense", color: "text-red-600", path: "/add-transaction" },
+    { icon: PieChart, label: "View Reports", color: "text-blue-600", path: "/reports" },
+    { icon: Calculator, label: "Budget Tool", color: "text-purple-600", path: "/budget-goals" },
   ]
+
+  const { confirmAndNavigate } = useConfirmNavigation()
 
   return (
     <>
@@ -116,13 +137,13 @@ export default function Home() {
               <h2 className="text-3xl font-bold tracking-tight">Welcome back!</h2>
               <p className="text-muted-foreground">Here's what's happening with your money today.</p>
             </div>
-           
+
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat, index) => (
               <Card key={index} className="shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-start space-y-0 pb-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                   <stat.icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -152,7 +173,7 @@ export default function Home() {
                     <CardTitle>Recent Transactions</CardTitle>
                     <CardDescription>Your latest financial activity</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm">View All</Button>
+                  <Button variant="outline" size="sm" onClick={handleClick}>View All</Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -211,8 +232,8 @@ export default function Home() {
                             ${goal.spent}/${goal.budget}
                           </span>
                         </div>
-                        <Progress 
-                          value={(goal.spent / goal.budget) * 100} 
+                        <Progress
+                          value={(goal.spent / goal.budget) * 100}
                           className="h-2"
                         />
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -255,7 +276,17 @@ export default function Home() {
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
                   {quickActions.map((action, index) => (
-                    <Button key={index} variant="outline" className="h-20 flex-col gap-2 shadow-lg">
+                    <Button
+                      key={index}
+                      variant="outline"
+                      className="h-20 w-full flex-col gap-2 shadow-lg"
+                      onClick={() =>
+                        confirmAndNavigate(
+                          action.path,
+                          `Do you want to continue to ${action.label}?`
+                        )
+                      }
+                    >
                       <action.icon className={`h-5 w-5 ${action.color}`} />
                       <span className="text-xs">{action.label}</span>
                     </Button>
@@ -283,7 +314,7 @@ export default function Home() {
                     </div>
                     <span className="text-sm font-bold text-green-600">$5,200.00</span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 bg-red-500 rounded-full" />
@@ -291,7 +322,7 @@ export default function Home() {
                     </div>
                     <span className="text-sm font-bold text-red-600">$3,850.00</span>
                   </div>
-                  
+
                   <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border">
                     <div className="flex items-center gap-3">
                       <div className="w-3 h-3 bg-blue-500 rounded-full" />
