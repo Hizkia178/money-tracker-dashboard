@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import Swal from "sweetalert2";
+import { useState } from "react";
 import { Dashboard } from "../Dashboard";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,233 +23,370 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Plus,
+  Edit,
+  Trash2,
+  Calendar,
+  DollarSign,
   TrendingUp,
   TrendingDown,
-  Wallet,
-  Activity,
-  ArrowUpRight,
-  ArrowDownRight,
-  CheckCircle,
-  XCircle,
-  Clock,
-  ShoppingCart,
+  Coffee,
   Car,
-  Home,
-  Briefcase,
-  Heart,
-  Zap,
   Film,
+  ShoppingCart,
+  Heart,
+  GraduationCap,
+  Zap,
+  Dumbbell,
+  Home,
+  Plane,
+  Briefcase,
   Gift,
   AlertCircle,
+  CheckCircle,
+  Save,
+  XCircle,
+  Filter,
+  Search,
+  Receipt,
+  MapPin,
+  Tags,
 } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
-
-interface Category {
-  value: string;
-  label: string;
-}
+import Swal from "sweetalert2";
 
 interface Transaction {
   id: number;
-  type: string;
+  title: string;
   amount: number;
-  category: string;
+  type: "income" | "expense";
+  category: {
+    id: number;
+    name: string;
+    icon: any;
+    color: string;
+  };
   description: string;
   date: string;
-  status: string;
+  location?: string;
+  tags: string[];
+  createdAt: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  icon: any;
+  color: string;
+  type: "income" | "expense";
 }
 
 interface FormData {
-  type: string;
+  title: string;
   amount: string;
-  category: string;
+  type: "income" | "expense";
+  categoryId: string;
   description: string;
   date: string;
-  status: string;
+  location: string;
+  tags: string;
 }
 
-interface Categories {
-  income: Category[];
-  expense: Category[];
-}
+const expenseCategories: Category[] = [
+  { id: 1, name: "Food & Dining", icon: Coffee, color: "bg-orange-500", type: "expense" },
+  { id: 2, name: "Transportation", icon: Car, color: "bg-blue-500", type: "expense" },
+  { id: 3, name: "Entertainment", icon: Film, color: "bg-purple-500", type: "expense" },
+  { id: 4, name: "Shopping", icon: ShoppingCart, color: "bg-pink-500", type: "expense" },
+  { id: 5, name: "Healthcare", icon: Heart, color: "bg-red-500", type: "expense" },
+  { id: 6, name: "Education", icon: GraduationCap, color: "bg-green-500", type: "expense" },
+  { id: 7, name: "Utilities", icon: Zap, color: "bg-yellow-500", type: "expense" },
+  { id: 8, name: "Health & Fitness", icon: Dumbbell, color: "bg-cyan-500", type: "expense" },
+  { id: 9, name: "Housing", icon: Home, color: "bg-indigo-500", type: "expense" },
+  { id: 10, name: "Travel", icon: Plane, color: "bg-teal-500", type: "expense" },
+];
 
-export default function AddTransaction() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+const incomeCategories: Category[] = [
+  { id: 11, name: "Salary", icon: Briefcase, color: "bg-green-600", type: "income" },
+  { id: 12, name: "Freelance", icon: DollarSign, color: "bg-blue-600", type: "income" },
+  { id: 13, name: "Investment", icon: TrendingUp, color: "bg-purple-600", type: "income" },
+  { id: 14, name: "Side Business", icon: Gift, color: "bg-orange-600", type: "income" },
+];
+
+const allCategories = [...expenseCategories, ...incomeCategories];
+
+export default function AddTransactions() {
   const [open, setOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<FormData>({
     defaultValues: {
-      type: "",
+      title: "",
       amount: "",
-      category: "",
+      type: "expense",
+      categoryId: "",
       description: "",
-      date: "",
-      status: "completed",
+      date: new Date().toISOString().split('T')[0],
+      location: "",
+      tags: "",
     },
   });
 
-  const selectedType = watch("type");
+  const watchedType = watch("type");
+  const watchedCategoryId = watch("categoryId");
 
-  const categoryIcons = {
-    salary: Briefcase,
-    freelance: Briefcase,
-    investment: TrendingUp,
-    business: Briefcase,
-    rent: Home,
-    groceries: ShoppingCart,
-    utilities: Zap,
-    transport: Car,
-    entertainment: Film,
-    healthcare: Heart,
-    other: Gift,
-  };
-
-  const getCategoryIcon = (category: string) => {
-    return categoryIcons[category as keyof typeof categoryIcons] || Gift;
-  };
-
-  const transactionTypes = [
-    { value: "income", label: "Income", icon: TrendingUp, color: "text-green-600" },
-    { value: "expense", label: "Expense", icon: TrendingDown, color: "text-red-600" },
-  ];
-
-  const categories: Categories = {
-    income: [
-      { value: "salary", label: "Salary" },
-      { value: "freelance", label: "Freelance" },
-      { value: "investment", label: "Investment" },
-      { value: "business", label: "Business" },
-      { value: "other", label: "Other" },
-    ],
-    expense: [
-      { value: "rent", label: "Rent" },
-      { value: "groceries", label: "Groceries" },
-      { value: "utilities", label: "Utilities" },
-      { value: "transport", label: "Transport" },
-      { value: "entertainment", label: "Entertainment" },
-      { value: "healthcare", label: "Healthcare" },
-      { value: "other", label: "Other" },
-    ],
-  };
-
-  const statusOptions = [
-    { value: "all", label: "All Status", color: "bg-gray-100 text-gray-800", icon: Activity },
-    { value: "completed", label: "Completed", color: "bg-green-100 text-green-800", icon: CheckCircle },
-    { value: "pending", label: "Pending", color: "bg-yellow-100 text-yellow-800", icon: Clock },
-    { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800", icon: XCircle },
-  ];
+  const [transactions, setTransactions] = useState<Transaction[]>([
+    {
+      id: 1,
+      title: "Lunch at Restaurant",
+      amount: 25.50,
+      type: "expense",
+      category: { id: 1, name: "Food & Dining", icon: Coffee, color: "bg-orange-500" },
+      description: "Business lunch with client",
+      date: "2024-12-28",
+      location: "Downtown Restaurant",
+      tags: ["business", "lunch"],
+      createdAt: "2024-12-28T12:30:00Z",
+    },
+    {
+      id: 2,
+      title: "Salary Payment",
+      amount: 3500.00,
+      type: "income",
+      category: { id: 11, name: "Salary", icon: Briefcase, color: "bg-green-600" },
+      description: "Monthly salary deposit",
+      date: "2024-12-25",
+      location: "",
+      tags: ["monthly", "salary"],
+      createdAt: "2024-12-25T09:00:00Z",
+    },
+    {
+      id: 3,
+      title: "Grocery Shopping",
+      amount: 89.45,
+      type: "expense",
+      category: { id: 1, name: "Food & Dining", icon: Coffee, color: "bg-orange-500" },
+      description: "Weekly grocery shopping",
+      date: "2024-12-27",
+      location: "Supermarket Plaza",
+      tags: ["groceries", "weekly"],
+      createdAt: "2024-12-27T16:45:00Z",
+    },
+    {
+      id: 4,
+      title: "Uber Ride",
+      amount: 12.75,
+      type: "expense",
+      category: { id: 2, name: "Transportation", icon: Car, color: "bg-blue-500" },
+      description: "Ride to airport",
+      date: "2024-12-26",
+      location: "Airport",
+      tags: ["uber", "airport"],
+      createdAt: "2024-12-26T14:20:00Z",
+    },
+    {
+      id: 5,
+      title: "Freelance Project",
+      amount: 450.00,
+      type: "income",
+      category: { id: 12, name: "Freelance", icon: DollarSign, color: "bg-blue-600" },
+      description: "Web development project completion",
+      date: "2024-12-24",
+      location: "",
+      tags: ["freelance", "web-dev"],
+      createdAt: "2024-12-24T18:30:00Z",
+    },
+  ]);
 
   const onSubmit = (data: FormData) => {
-    const newTransaction: Transaction = {
-      id: transactions.length + 1,
-      ...data,
-      amount: parseFloat(data.amount),
-    };
-    setTransactions([newTransaction, ...transactions]);
+    const selectedCategory = allCategories.find(cat => cat.id === parseInt(data.categoryId));
+    const tags = data.tags ? data.tags.split(",").map(tag => tag.trim()).filter(tag => tag) : [];
+
+    if (editingTransaction) {
+      setTransactions(prev =>
+        prev.map(transaction =>
+          transaction.id === editingTransaction.id
+            ? {
+                ...transaction,
+                title: data.title,
+                amount: parseFloat(data.amount),
+                type: data.type,
+                category: selectedCategory!,
+                description: data.description,
+                date: data.date,
+                location: data.location,
+                tags,
+              }
+            : transaction
+        )
+      );
+      Swal.fire({
+        title: "Updated!",
+        text: `Transaction "${data.title}" has been updated.`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else {
+      const newTransaction: Transaction = {
+        id: Math.max(...transactions.map(t => t.id)) + 1,
+        title: data.title,
+        amount: parseFloat(data.amount),
+        type: data.type,
+        category: selectedCategory!,
+        description: data.description,
+        date: data.date,
+        location: data.location,
+        tags,
+        createdAt: new Date().toISOString(),
+      };
+
+      setTransactions(prev => [newTransaction, ...prev]);
+      Swal.fire({
+        title: "Added!",
+        text: `Transaction "${data.title}" has been added.`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    }
+
     reset();
+    setEditingTransaction(null);
     setOpen(false);
   };
 
-  const handleDelete = (transaction: Transaction) => {
-    Swal.fire({
-      title: "Manage Transaction",
-      html: `
-        <div class="text-left sm:text-start text-sm text-gray-600">
-          You are about to delete the following transaction:
-          <div class="mt-2 space-y-1">
-            <div><strong>Description:</strong> ${transaction.description}</div>
-            <div><strong>Amount:</strong> $${transaction.amount.toFixed(2)}</div>
-            <div><strong>Category:</strong> ${transaction.category.replace(/([A-Z])/g, " $1").trim()}</div>
-            <div><strong>Date:</strong> ${transaction.date}</div>
-            <div><strong>Status:</strong> ${statusOptions.find((s) => s.value === transaction.status)?.label}</div>
-          </div>
-          <div class="flex items-center gap-2 mt-3 text-red-600 flex-wrap">
-            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span class="inline-block bg-red-100 text-red-800 text-sm font-medium px-2.5 py-0.5 rounded max-w-[80%]">
-              Warning: This action is permanent and cannot be undone.
-            </span>
-          </div>
-        </div>
-      `,
+  const handleAddTransaction = () => {
+    setEditingTransaction(null);
+    reset({
+      title: "",
+      amount: "",
+      type: "expense",
+      categoryId: "",
+      description: "",
+      date: new Date().toISOString().split('T')[0],
+      location: "",
+      tags: "",
+    });
+    setOpen(true);
+  };
+
+  const handleEditTransaction = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    reset({
+      title: transaction.title,
+      amount: transaction.amount.toString(),
+      type: transaction.type,
+      categoryId: transaction.category.id.toString(),
+      description: transaction.description,
+      date: transaction.date,
+      location: transaction.location || "",
+      tags: transaction.tags.join(", "),
+    });
+    setOpen(true);
+  };
+
+  const handleDeleteTransaction = async (transaction: Transaction) => {
+    const result = await Swal.fire({
+      title: `Delete "${transaction.title}"?`,
+      text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
-      cancelButtonText: "Close",
-      confirmButtonText: "Delete Transaction",
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#6b7280",
-      customClass: {
-        popup: "max-w-[90vw] sm:max-w-lg",
-        htmlContainer: "text-left sm:text-start",
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        setTransactions(transactions.filter((t) => t.id !== transaction.id));
-      }
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#ef4444",
+    });
+
+    if (result.isConfirmed) {
+      setTransactions(prev => prev.filter(t => t.id !== transaction.id));
+      await Swal.fire({
+        title: "Deleted!",
+        text: `Transaction "${transaction.title}" has been deleted.`,
+        icon: "success",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    }
+  };
+
+  const filteredTransactions = transactions.filter(transaction => {
+    const matchesType = filterType === "all" || transaction.type === filterType;
+    const matchesSearch = searchQuery === "" || 
+      transaction.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.category.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesType && matchesSearch;
+  });
+
+  const availableCategories = allCategories.filter(cat => cat.type === watchedType);
+
+  const transactionStats = [
+    {
+      title: "Total Transactions",
+      value: transactions.length.toString(),
+      change: "+3 today",
+      changeType: "increase",
+      icon: Receipt,
+      description: "All transactions",
+    },
+    {
+      title: "This Month Income",
+      value: `$${transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0).toFixed(2)}`,
+      change: "+12.5%",
+      changeType: "increase",
+      icon: TrendingUp,
+      description: "Total income",
+    },
+    {
+      title: "This Month Expenses",
+      value: `$${transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0).toFixed(2)}`,
+      change: "+8.2%",
+      changeType: "increase",
+      icon: TrendingDown,
+      description: "Total expenses",
+    },
+    {
+      title: "Net Balance",
+      value: `$${(transactions.filter(t => t.type === "income").reduce((sum, t) => sum + t.amount, 0) - transactions.filter(t => t.type === "expense").reduce((sum, t) => sum + t.amount, 0)).toFixed(2)}`,
+      change: "+4.3%",
+      changeType: "increase",
+      icon: DollarSign,
+      description: "Income - Expenses",
+    },
+  ];
+
+  const getChangeColor = (changeType: string) => {
+    switch (changeType) {
+      case "increase":
+        return "text-green-600";
+      case "decrease":
+        return "text-red-600";
+      case "warning":
+        return "text-orange-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
-  const filteredTransactions = transactions.filter((transaction) => {
-    const matchesStatus = filterStatus === "all" || transaction.status === filterStatus;
-    const matchesSearch = transaction.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
-
-  const totalIncome = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const totalExpense = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const balance = totalIncome - totalExpense;
-
-  const stats = [
-    {
-      title: "Total Balance",
-      value: `$${balance.toFixed(2)}`,
-      icon: Wallet,
-      color: balance >= 0 ? "text-green-600" : "text-red-600",
-      change: "0.0%",
-      changeType: "increase",
-      description: "Across all accounts",
-    },
-    {
-      title: "Total Income",
-      value: `$${totalIncome.toFixed(2)}`,
-      icon: TrendingUp,
-      color: "text-green-600",
-      change: "0.0%",
-      changeType: "increase",
-      description: "This month",
-    },
-    {
-      title: "Total Expenses",
-      value: `$${totalExpense.toFixed(2)}`,
-      icon: TrendingDown,
-      color: "text-red-600",
-      change: "0.0%",
-      changeType: "decrease",
-      description: "This month",
-    },
-    {
-      title: "Transactions",
-      value: transactions.length.toString(),
-      icon: Activity,
-      color: "text-blue-600",
-      change: "0.0%",
-      changeType: "increase",
-      description: "Total count",
-    },
-  ];
+  const getSelectedCategory = () => {
+    return allCategories.find(cat => cat.id === parseInt(watchedCategoryId));
+  };
 
   return (
     <Dashboard>
@@ -256,63 +394,85 @@ export default function AddTransaction() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h2 className="text-3xl font-bold tracking-tight">Transactions</h2>
-            <p className="text-muted-foreground">Manage your income and expenses efficiently</p>
+            <p className="text-muted-foreground">Manage your income and expense transactions</p>
           </div>
           <div className="flex gap-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button className="flex items-center w-fit gap-2 shadow-lg">
-                  <Plus className="h-4 w-4" />
+                <Button className="flex items-center w-fit gap-2 shadow-lg" onClick={handleAddTransaction}>
+                  <Plus className="h-4 w-4 mr-2" />
                   Add Transaction
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
+              <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
                   <DialogTitle className="flex items-center gap-2">
-                    <Plus className="h-5 w-5" />
-                    Add New Transaction
+                    <Receipt className="h-5 w-5" />
+                    {editingTransaction ? "Edit Transaction" : "Add New Transaction"}
                   </DialogTitle>
                   <DialogDescription>
-                    Fill out the form below to add a new transaction record to your tracker.
+                    {editingTransaction ? "Update your transaction details below." : "Create a new transaction to track your income or expenses."}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="type">Transaction Type</Label>
+                      <Label htmlFor="title">Transaction Title</Label>
                       <Controller
-                        name="type"
+                        name="title"
                         control={control}
-                        rules={{ required: "Transaction type is required" }}
+                        rules={{
+                          required: "Transaction title is required",
+                          maxLength: {
+                            value: 100,
+                            message: "Title cannot exceed 100 characters",
+                          },
+                        }}
                         render={({ field }) => (
-                          <Select
+                          <Input
                             {...field}
-                            name="type"
-                            onValueChange={field.onChange}
-                          >
-                            <SelectTrigger id="type" className="w-full">
-                              <SelectValue placeholder="Select type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {transactionTypes.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  <div className="flex items-center gap-2">
-                                    <type.icon className={`h-4 w-4 ${type.color}`} />
-                                    {type.label}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            id="title"
+                            placeholder="e.g., Lunch at Restaurant, Salary Payment"
+                          />
                         )}
                       />
-                      {errors.type && (
+                      {errors.title && (
                         <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
                           <AlertCircle className="h-4 w-4" />
-                          {errors.type.message}
+                          {errors.title.message}
                         </p>
                       )}
                     </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description">Description</Label>
+                      <Controller
+                        name="description"
+                        control={control}
+                        rules={{
+                          required: "Description is required",
+                          maxLength: {
+                            value: 300,
+                            message: "Description cannot exceed 300 characters",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Textarea
+                            {...field}
+                            id="description"
+                            placeholder="Provide additional details about this transaction..."
+                            rows={3}
+                          />
+                        )}
+                      />
+                      {errors.description && (
+                        <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.description.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="amount">Amount</Label>
                       <Controller
@@ -322,8 +482,10 @@ export default function AddTransaction() {
                           required: "Amount is required",
                           pattern: {
                             value: /^\d+(\.\d{1,2})?$/,
-                            message: "Please enter a valid amount",
+                            message: "Please enter a valid amount (e.g., 100.00)",
                           },
+                          validate: (value) =>
+                            parseFloat(value) > 0 || "Amount must be greater than 0",
                         }}
                         render={({ field }) => (
                           <Input
@@ -342,45 +504,71 @@ export default function AddTransaction() {
                         </p>
                       )}
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="category">Category</Label>
+                      <Label htmlFor="type">Transaction Type</Label>
                       <Controller
-                        name="category"
+                        name="type"
                         control={control}
-                        rules={{ required: "Category is required" }}
+                        rules={{ required: "Transaction type is required" }}
                         render={({ field }) => (
-                          <Select
-                            {...field}
-                            onValueChange={field.onChange}
-                            name="category"
-                            disabled={!selectedType}
-                          >
-                            <SelectTrigger id="category" className="w-full">
-                              <SelectValue placeholder="Select category" />
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger id="type" className="w-full">
+                              <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                             <SelectContent>
-                              {selectedType &&
-                                categories[selectedType as keyof Categories]?.map((category: Category) => (
-                                  <SelectItem key={category.value} value={category.value}>
-                                    <div className="flex items-center gap-2">
-                                      {(() => {
-                                        const CategoryIcon = getCategoryIcon(category.value);
-                                        return <CategoryIcon className="h-4 w-4" />;
-                                      })()}
-                                      {category.label}
-                                    </div>
-                                  </SelectItem>
-                                ))}
+                              <SelectItem value="expense">
+                                <div className="flex items-center gap-2">
+                                  <TrendingDown className="h-4 w-4 text-red-600" />
+                                  Expense
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="income">
+                                <div className="flex items-center gap-2">
+                                  <TrendingUp className="h-4 w-4 text-green-600" />
+                                  Income
+                                </div>
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         )}
                       />
-                      {errors.category && (
+                      {errors.type && (
                         <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
                           <AlertCircle className="h-4 w-4" />
-                          {errors.category.message}
+                          {errors.type.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="categoryId">Category</Label>
+                      <Controller
+                        name="categoryId"
+                        control={control}
+                        rules={{ required: "Category is required" }}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger id="categoryId" className="w-full">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {availableCategories.map((category) => (
+                                <SelectItem key={category.id} value={category.id.toString()}>
+                                  <div className="flex items-center gap-2">
+                                    <category.icon className="h-4 w-4" />
+                                    {category.name}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.categoryId && (
+                        <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.categoryId.message}
                         </p>
                       )}
                     </div>
@@ -389,19 +577,12 @@ export default function AddTransaction() {
                       <Controller
                         name="date"
                         control={control}
-                        rules={{ 
-                          required: "Date is required",
-                          pattern: {
-                            value: /^\d{4}-\d{2}-\d{2}$/,
-                            message: "Date must be in YYYY-MM-DD format"
-                          }
-                        }}
+                        rules={{ required: "Date is required" }}
                         render={({ field }) => (
                           <Input
                             {...field}
                             id="date"
                             type="date"
-                            placeholder="YYYY-MM-DD"
                           />
                         )}
                       />
@@ -413,57 +594,76 @@ export default function AddTransaction() {
                       )}
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Controller
-                      name="status"
-                      control={control}
-                      render={({ field }) => (
-                        <Select
-                          {...field}
-                          name="status"
-                          onValueChange={field.onChange}
-                        >
-                          <SelectTrigger id="status">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {statusOptions.slice(1).map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                <div className="flex items-center gap-2">
-                                  <status.icon className="h-4 w-4" />
-                                  {status.label}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location (Optional)</Label>
+                      <Controller
+                        name="location"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="location"
+                            placeholder="e.g., Downtown Restaurant, Online"
+                          />
+                        )}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="tags">Tags (Optional)</Label>
+                      <Controller
+                        name="tags"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="tags"
+                            placeholder="e.g., business, lunch, weekly"
+                          />
+                        )}
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Controller
-                      name="description"
-                      control={control}
-                      render={({ field }) => (
-                        <Textarea
-                          {...field}
-                          id="description"
-                          placeholder="Add a description for this transaction..."
-                          rows={3}
-                          className="h-30"
-                        />
-                      )}
-                    />
-                  </div>
+                  {(watchedCategoryId && watchedType) && (
+                    <div className="p-4 border rounded-lg bg-gray-50">
+                      <Label className="text-sm font-medium mb-2 block">Preview</Label>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full ${getSelectedCategory()?.color} flex items-center justify-center shadow-lg`}>
+                          {getSelectedCategory() && (() => {
+                            const Icon = getSelectedCategory()!.icon;
+                            return <Icon className="h-5 w-5 text-white" />;
+                          })()}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">{watch("title") || "Transaction Title"}</h4>
+                            <span className={`font-bold ${watchedType === "income" ? "text-green-600" : "text-red-600"}`}>
+                              {watchedType === "income" ? "+" : "-"}${watch("amount") || "0.00"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{watch("description") || "Transaction description"}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {getSelectedCategory()?.name}
+                            </Badge>
+                            {watch("location") && (
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                {watch("location")}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex justify-end gap-3">
                     <Button
                       type="button"
-                      name="button"
                       variant="outline"
                       onClick={() => {
                         reset();
+                        setEditingTransaction(null);
                         setOpen(false);
                       }}
                       className="flex items-center gap-2"
@@ -471,12 +671,18 @@ export default function AddTransaction() {
                       <XCircle className="h-4 w-4" />
                       Cancel
                     </Button>
-                    <Button
-                      type="submit"
-                      className="flex items-center gap-2"
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Add Transaction
+                    <Button type="submit" className="flex items-center gap-2">
+                      {editingTransaction ? (
+                        <>
+                          <Save className="h-4 w-4" />
+                          Update Transaction
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="h-4 w-4" />
+                          Add Transaction
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
@@ -486,23 +692,16 @@ export default function AddTransaction() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {stats.map((stat, index) => (
-            <Card key={`stat-${index}`} className="shadow-lg">
+          {transactionStats.map((stat, index) => (
+            <Card key={index} className="shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+                <div className="text-2xl font-bold">{stat.value}</div>
                 <div className="flex items-center text-xs text-muted-foreground mt-1">
-                  {stat.changeType === "increase" ? (
-                    <ArrowUpRight className="h-3 w-3 text-green-500 mr-1" />
-                  ) : (
-                    <ArrowDownRight className="h-3 w-3 text-red-500 mr-1" />
-                  )}
-                  <span className={stat.changeType === "increase" ? "text-green-600" : "text-red-600"}>
-                    {stat.change}
-                  </span>
+                  <span className={getChangeColor(stat.changeType)}>{stat.change}</span>
                   <span className="ml-1">{stat.description}</span>
                 </div>
               </CardContent>
@@ -510,130 +709,119 @@ export default function AddTransaction() {
           ))}
         </div>
 
-        <div className="grid gap-8 md:grid-cols-1">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>All Transactions</CardTitle>
-                  <CardDescription>Complete history of your financial activities</CardDescription>
-                </div>
-                <div className="gap-2 hidden sm:flex">
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {statusOptions.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          <div className="flex items-center gap-2">
-                            <status.icon className="h-4 w-4" />
-                            {status.label}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+        <Card className="shadow-lg">
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <CardTitle>Recent Transactions</CardTitle>
+                <CardDescription>Your latest income and expense transactions</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by description..."
-                    id="seacth-by-description"
+                    placeholder="Search transactions..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-[200px]"
+                    className="pl-8 w-64"
                   />
                 </div>
+                <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
+                  <SelectTrigger className="w-32">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="income">Income</SelectItem>
+                    <SelectItem value="expense">Expense</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-96">
-                {filteredTransactions.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-81 text-center text-muted-foreground">
-                    <XCircle className="h-12 w-12 mb-4" />
-                    <p className="text-lg font-medium">No Transactions Found</p>
-                    <p className="text-sm">Try adjusting your search or filter criteria.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {filteredTransactions.map((transaction) => {
-                      const CategoryIcon = getCategoryIcon(transaction.category);
-                      return (
-                        <div
-                          key={`transaction-${transaction.id}`}
-                          className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors cursor-pointer"
-                          onClick={() => handleDelete(transaction)}
-                        >
-                          <div className="flex items-center space-x-4">
-                            <div
-                              className={`w-2 h-8 rounded-full shadow-lg ${transaction.type === "income" ? "bg-green-500" : "bg-red-500"}`}
-                            />
-                            <div>
-                              <p className="text-sm font-medium">{transaction.description}</p>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Badge
-                                  variant={transaction.type === "income" ? "default" : "secondary"}
-                                  className="text-xs flex items-center gap-1"
-                                >
-                                  <CategoryIcon className="h-3 w-3" />
-                                  {transaction.category.replace(/([A-Z])/g, " $1").trim()}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge
-                              className={statusOptions.find((s) => s.value === transaction.status)?.color}
-                              variant="secondary"
-                            >
-                              {statusOptions.find((s) => s.value === transaction.status)?.label}
-                            </Badge>
-                            <p
-                              className={`text-sm font-medium ${transaction.type === "income" ? "text-green-600" : "text-red-600"}`}
-                            >
-                              {transaction.type === "income" ? "+" : "-"}$
-                              {transaction.amount.toFixed(2)}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-8 md:grid-cols-1">
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle>Transaction Status</CardTitle>
-              <CardDescription>Status breakdown of your transactions</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {statusOptions.slice(1).map((status) => {
-                  const count = transactions.filter((t) => t.status === status.value).length;
-                  const percentage = transactions.length ? (count / transactions.length) * 100 : 0;
-                  return (
-                    <div key={`status-${status.value}`} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <status.icon className="h-4 w-4" />
-                          <span className="font-medium">{status.label}</span>
-                        </div>
-                        <span className="text-muted-foreground">{count} transactions</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {filteredTransactions.length === 0 ? (
+                <div className="text-center py-8">
+                  <Receipt className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-muted-foreground">No transactions found</h3>
+                  <p className="text-sm text-muted-foreground">Try adjusting your search or filter criteria</p>
+                </div>
+              ) : (
+                filteredTransactions.map((transaction) => (
+                  <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-12 h-12 rounded-full ${transaction.category.color} flex items-center justify-center shadow-lg`}>
+                        <transaction.category.icon className="h-6 w-6 text-white" />
                       </div>
-                      <Progress value={percentage} className="h-2" />
-                      <div className="text-xs text-muted-foreground">
-                        {percentage.toFixed(1)}% of all transactions
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-medium">{transaction.title}</h4>
+                          <Badge variant="outline" className="text-xs">
+                            {transaction.category.name}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-1">{transaction.description}</p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(transaction.date)}
+                          </div>
+                          {transaction.location && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {transaction.location}
+                            </div>
+                          )}
+                          {transaction.tags.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Tags className="h-3 w-3" />
+                              {transaction.tags.join(", ")}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    <div className="flex items-center gap-3">
+                      <div className="text-right">
+                        <div className={`text-lg font-bold ${transaction.type === "income" ? "text-green-600" : "text-red-600"}`}>
+                          {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {new Date(transaction.createdAt).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => handleEditTransaction(transaction)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-red-600"
+                          onClick={() => handleDeleteTransaction(transaction)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+
       </div>
     </Dashboard>
   );
