@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -44,9 +45,9 @@ import {
   Zap,
   Film,
   Gift,
-  Filter,
-  Search,
+  AlertCircle,
 } from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
 
 interface Category {
   value: string;
@@ -78,40 +79,23 @@ interface Categories {
 }
 
 export default function AddTransaction() {
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    { id: 1, type: "income", amount: 2500, category: "salary", description: "Monthly salary payment", date: "2025-08-30", status: "completed" },
-    { id: 2, type: "expense", amount: 850, category: "rent", description: "Monthly apartment rent", date: "2025-08-29", status: "completed" },
-    { id: 3, type: "expense", amount: 120, category: "groceries", description: "Weekly grocery shopping", date: "2025-08-28", status: "completed" },
-    { id: 4, type: "income", amount: 500, category: "freelance", description: "Web design project payment", date: "2025-08-27", status: "pending" },
-    { id: 5, type: "expense", amount: 75, category: "utilities", description: "Electricity bill", date: "2025-08-26", status: "completed" },
-    { id: 6, type: "expense", amount: 45, category: "transport", description: "Gas station fill-up", date: "2025-08-25", status: "completed" },
-    { id: 7, type: "income", amount: 300, category: "investment", description: "Dividend payment", date: "2025-08-24", status: "completed" },
-    { id: 8, type: "expense", amount: 89, category: "entertainment", description: "Movie tickets and dinner", date: "2025-08-23", status: "cancelled" },
-    { id: 9, type: "expense", amount: 67, category: "groceries", description: "Supermarket shopping", date: "2025-08-22", status: "completed" },
-    { id: 10, type: "income", amount: 1200, category: "freelance", description: "Mobile app development", date: "2025-08-21", status: "completed" },
-    { id: 11, type: "expense", amount: 195, category: "healthcare", description: "Doctor consultation", date: "2025-08-20", status: "completed" },
-    { id: 12, type: "expense", amount: 35, category: "transport", description: "Taxi ride", date: "2025-08-19", status: "completed" },
-    { id: 13, type: "income", amount: 150, category: "other", description: "Gift money", date: "2025-08-18", status: "completed" },
-    { id: 14, type: "expense", amount: 299, category: "other", description: "New smartphone", date: "2025-08-17", status: "pending" },
-    { id: 15, type: "expense", amount: 45, category: "entertainment", description: "Video game purchase", date: "2025-08-16", status: "completed" },
-    { id: 16, type: "income", amount: 800, category: "business", description: "Consulting services", date: "2025-08-15", status: "completed" },
-    { id: 17, type: "expense", amount: 125, category: "utilities", description: "Internet bill", date: "2025-08-14", status: "completed" },
-    { id: 18, type: "expense", amount: 78, category: "groceries", description: "Organic food store", date: "2025-08-13", status: "completed" },
-    { id: 19, type: "income", amount: 450, category: "investment", description: "Stock dividend", date: "2025-08-12", status: "completed" },
-    { id: 20, type: "expense", amount: 180, category: "entertainment", description: "Concert tickets", date: "2025-08-11", status: "cancelled" },
-  ]);
-
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
-    type: "",
-    amount: "",
-    category: "",
-    description: "",
-    date: "",
-    status: "completed",
-  });
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<FormData>({
+    defaultValues: {
+      type: "",
+      amount: "",
+      category: "",
+      description: "",
+      date: "",
+      status: "completed",
+    },
+  });
+
+  const selectedType = watch("type");
 
   const categoryIcons = {
     salary: Briefcase,
@@ -162,27 +146,15 @@ export default function AddTransaction() {
     { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-800", icon: XCircle },
   ];
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const onSubmit = (data: FormData) => {
     const newTransaction: Transaction = {
       id: transactions.length + 1,
-      ...formData,
-      amount: parseFloat(formData.amount),
+      ...data,
+      amount: parseFloat(data.amount),
     };
     setTransactions([newTransaction, ...transactions]);
-    setFormData({
-      type: "",
-      amount: "",
-      category: "",
-      description: "",
-      date: "",
-      status: "completed",
-    });
+    reset();
     setOpen(false);
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleDelete = (transaction: Transaction) => {
@@ -245,7 +217,7 @@ export default function AddTransaction() {
       value: `$${balance.toFixed(2)}`,
       icon: Wallet,
       color: balance >= 0 ? "text-green-600" : "text-red-600",
-      change: "+12.5%",
+      change: "0.0%",
       changeType: "increase",
       description: "Across all accounts",
     },
@@ -254,7 +226,7 @@ export default function AddTransaction() {
       value: `$${totalIncome.toFixed(2)}`,
       icon: TrendingUp,
       color: "text-green-600",
-      change: "+8.2%",
+      change: "0.0%",
       changeType: "increase",
       description: "This month",
     },
@@ -263,7 +235,7 @@ export default function AddTransaction() {
       value: `$${totalExpense.toFixed(2)}`,
       icon: TrendingDown,
       color: "text-red-600",
-      change: "-3.1%",
+      change: "0.0%",
       changeType: "decrease",
       description: "This month",
     },
@@ -272,7 +244,7 @@ export default function AddTransaction() {
       value: transactions.length.toString(),
       icon: Activity,
       color: "text-blue-600",
-      change: "+15%",
+      change: "0.0%",
       changeType: "increase",
       description: "Total count",
     },
@@ -289,7 +261,7 @@ export default function AddTransaction() {
           <div className="flex gap-2">
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button className="flex items-center gap-2 shadow-lg">
+                <Button className="flex items-center w-fit gap-2 shadow-lg">
                   <Plus className="h-4 w-4" />
                   Add Transaction
                 </Button>
@@ -300,125 +272,210 @@ export default function AddTransaction() {
                     <Plus className="h-5 w-5" />
                     Add New Transaction
                   </DialogTitle>
+                  <DialogDescription>
+                    Fill out the form below to add a new transaction record to your tracker.
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="type">Transaction Type</Label>
-                      <Select
-                        value={formData.type}
-                        onValueChange={(value) => handleInputChange("type", value)}
-                        required
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {transactionTypes.map((type) => (
-                            <SelectItem key={type.value} value={type.value}>
-                              <div className="flex items-center gap-2">
-                                <type.icon className={`h-4 w-4 ${type.color}`} />
-                                {type.label}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="type"
+                        control={control}
+                        rules={{ required: "Transaction type is required" }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger id="type" className="w-full">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {transactionTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  <div className="flex items-center gap-2">
+                                    <type.icon className={`h-4 w-4 ${type.color}`} />
+                                    {type.label}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.type && (
+                        <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.type.message}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="amount">Amount</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        step="0.01"
-                        placeholder="0.00"
-                        value={formData.amount}
-                        onChange={(e) => handleInputChange("amount", e.target.value)}
-                        required
+                      <Controller
+                        name="amount"
+                        control={control}
+                        rules={{
+                          required: "Amount is required",
+                          pattern: {
+                            value: /^\d+(\.\d{1,2})?$/,
+                            message: "Please enter a valid amount",
+                          },
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="amount"
+                            type="number"
+                            step="0.01"
+                            placeholder="0.00"
+                          />
+                        )}
                       />
+                      {errors.amount && (
+                        <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.amount.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="category">Category</Label>
-                      <Select
-                        value={formData.category}
-                        onValueChange={(value) => handleInputChange("category", value)}
-                        disabled={!formData.type}
-                        required
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {formData.type &&
-                            categories[formData.type as keyof Categories]?.map((category: Category) => (
-                              <SelectItem key={category.value} value={category.value}>
-                                <div className="flex items-center gap-2">
-                                  {(() => {
-                                    const CategoryIcon = getCategoryIcon(category.value);
-                                    return <CategoryIcon className="h-4 w-4" />;
-                                  })()}
-                                  {category.label}
-                                </div>
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="category"
+                        control={control}
+                        rules={{ required: "Category is required" }}
+                        render={({ field }) => (
+                          <Select
+                            {...field}
+                            onValueChange={field.onChange}
+                            disabled={!selectedType}
+                          >
+                            <SelectTrigger id="category" className="w-full">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {selectedType &&
+                                categories[selectedType as keyof Categories]?.map((category: Category) => (
+                                  <SelectItem key={category.value} value={category.value}>
+                                    <div className="flex items-center gap-2">
+                                      {(() => {
+                                        const CategoryIcon = getCategoryIcon(category.value);
+                                        return <CategoryIcon className="h-4 w-4" />;
+                                      })()}
+                                      {category.label}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                      {errors.category && (
+                        <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.category.message}
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="date">Date</Label>
-                      <Input
-                        id="date"
-                        type="date"
-                        value={formData.date}
-                        onChange={(e) => handleInputChange("date", e.target.value)}
-                        required
+                      <Controller
+                        name="date"
+                        control={control}
+                        rules={{ 
+                          required: "Date is required",
+                          pattern: {
+                            value: /^\d{4}-\d{2}-\d{2}$/,
+                            message: "Date must be in YYYY-MM-DD format"
+                          }
+                        }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id="date"
+                            type="date"
+                            placeholder="YYYY-MM-DD"
+                          />
+                        )}
                       />
+                      {errors.date && (
+                        <p className="text-red-600 text-sm flex items-center gap-1 mt-1">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.date.message}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="status">Status</Label>
-                    <Select
-                      value={formData.status}
-                      onValueChange={(value) => handleInputChange("status", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.slice(1).map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            <div className="flex items-center gap-2">
-                              <status.icon className="h-4 w-4" />
-                              {status.label}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Controller
+                      name="status"
+                      control={control}
+                      render={({ field }) => (
+                        <Select
+                          {...field}
+                          onValueChange={field.onChange}
+                        >
+                          <SelectTrigger id="status">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statusOptions.slice(1).map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
+                                <div className="flex items-center gap-2">
+                                  <status.icon className="h-4 w-4" />
+                                  {status.label}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Add a description for this transaction..."
-                      value={formData.description}
-                      onChange={(e) => handleInputChange("description", e.target.value)}
-                      rows={3}
+                    <Controller
+                      name="description"
+                      control={control}
+                      render={({ field }) => (
+                        <Textarea
+                          {...field}
+                          id="description"
+                          placeholder="Add a description for this transaction..."
+                          rows={3}
+                          className="h-30"
+                        />
+                      )}
                     />
                   </div>
                   <div className="flex justify-end gap-3">
-                    <Button type="button" variant="outline" onClick={() => setOpen(false)} className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        reset();
+                        setOpen(false);
+                      }}
+                      className="flex items-center gap-2"
+                    >
                       <XCircle className="h-4 w-4" />
                       Cancel
                     </Button>
-                    <Button type="button" onClick={handleSubmit} className="flex items-center gap-2">
+                    <Button
+                      type="submit"
+                      className="flex items-center gap-2"
+                    >
                       <CheckCircle className="h-4 w-4" />
                       Add Transaction
                     </Button>
                   </div>
-                </div>
+                </form>
               </DialogContent>
             </Dialog>
           </div>
@@ -426,8 +483,8 @@ export default function AddTransaction() {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, index) => (
-            <Card key={index} className="shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <Card key={`stat-${index}`} className="shadow-lg">
+              <CardHeader className="flex flex-row items-center justify-start space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                 <stat.icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
@@ -496,15 +553,13 @@ export default function AddTransaction() {
                       const CategoryIcon = getCategoryIcon(transaction.category);
                       return (
                         <div
-                          key={transaction.id}
+                          key={`transaction-${transaction.id}`}
                           className="flex items-center justify-between p-3 rounded-lg border hover:bg-gray-50 transition-colors cursor-pointer"
                           onClick={() => handleDelete(transaction)}
                         >
                           <div className="flex items-center space-x-4">
                             <div
-                              className={`w-2 h-8 rounded-full shadow-lg ${
-                                transaction.type === "income" ? "bg-green-500" : "bg-red-500"
-                              }`}
+                              className={`w-2 h-8 rounded-full shadow-lg ${transaction.type === "income" ? "bg-green-500" : "bg-red-500"}`}
                             />
                             <div>
                               <p className="text-sm font-medium">{transaction.description}</p>
@@ -527,9 +582,7 @@ export default function AddTransaction() {
                               {statusOptions.find((s) => s.value === transaction.status)?.label}
                             </Badge>
                             <p
-                              className={`text-sm font-medium ${
-                                transaction.type === "income" ? "text-green-600" : "text-red-600"
-                              }`}
+                              className={`text-sm font-medium ${transaction.type === "income" ? "text-green-600" : "text-red-600"}`}
                             >
                               {transaction.type === "income" ? "+" : "-"}$
                               {transaction.amount.toFixed(2)}
@@ -555,9 +608,9 @@ export default function AddTransaction() {
               <div className="space-y-3">
                 {statusOptions.slice(1).map((status) => {
                   const count = transactions.filter((t) => t.status === status.value).length;
-                  const percentage = (count / transactions.length) * 100;
+                  const percentage = transactions.length ? (count / transactions.length) * 100 : 0;
                   return (
-                    <div key={status.value} className="space-y-2">
+                    <div key={`status-${status.value}`} className="space-y-2">
                       <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           <status.icon className="h-4 w-4" />

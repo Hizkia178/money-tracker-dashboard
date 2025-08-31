@@ -116,18 +116,13 @@ export default function Home() {
               <h2 className="text-3xl font-bold tracking-tight">Welcome back!</h2>
               <p className="text-muted-foreground">Here's what's happening with your money today.</p>
             </div>
-            <div className="flex gap-2">
-              <Button className="shadow-lg">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Transaction
-              </Button>
-            </div>
+           
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat, index) => (
               <Card key={index} className="shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-betweevn space-y-0 pb-2">
+                <CardHeader className="flex flex-row items-center justify-start space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
                   <stat.icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
