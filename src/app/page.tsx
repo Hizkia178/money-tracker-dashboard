@@ -25,16 +25,11 @@ import {
   Film,
   GraduationCap,
   Heart,
-  Zap,
-  Dumbbell,
-  TrendingUpDown,
-  HelpCircle,
   Coffee,
-  CreditCard,
   Briefcase,
-  Gift,
-  Calculator
-} from 'lucide-react'
+  Calculator,
+  MapPin,
+  Home as HomeIcon} from 'lucide-react'
 
 export default function Home() {
   const router = useRouter()
@@ -53,6 +48,7 @@ export default function Home() {
       router.push("/add-transaction")
     }
   }
+
   const stats = [
     {
       title: "Total Balance",
@@ -89,34 +85,147 @@ export default function Home() {
   ]
 
   const recentTransactions = [
-    { id: 1, description: "Grocery Store", amount: -85.50, category: "Food", date: "Today", type: "expense", icon: ShoppingCart },
-    { id: 2, description: "Salary Deposit", amount: 2600.00, category: "Income", date: "Today", type: "income", icon: Briefcase },
-    { id: 3, description: "Coffee Shop", amount: -12.75, category: "Food", date: "Today", type: "expense", icon: Coffee },
-    { id: 4, description: "Uber Ride", amount: -18.30, category: "Transportation", date: "Yesterday", type: "expense", icon: Car },
-    { id: 5, description: "Netflix Subscription", amount: -15.99, category: "Entertainment", date: "Yesterday", type: "expense", icon: Film },
-    { id: 6, description: "Gas Station", amount: -45.20, category: "Transportation", date: "Yesterday", type: "expense", icon: Car },
-    { id: 7, description: "Online Course", amount: -89.99, category: "Education", date: "2 days ago", type: "expense", icon: GraduationCap },
-    { id: 8, description: "Freelance Work", amount: 350.00, category: "Income", date: "2 days ago", type: "income", icon: CreditCard },
-    { id: 9, description: "Pharmacy", amount: -24.50, category: "Healthcare", date: "2 days ago", type: "expense", icon: Heart },
-    { id: 10, description: "Amazon Purchase", amount: -67.89, category: "Shopping", date: "3 days ago", type: "expense", icon: ShoppingCart },
-    { id: 11, description: "Gym Membership", amount: -49.99, category: "Health", date: "3 days ago", type: "expense", icon: Dumbbell },
-    { id: 12, description: "Investment Dividend", amount: 125.00, category: "Investment", date: "3 days ago", type: "income", icon: TrendingUpDown },
-    { id: 13, description: "Electricity Bill", amount: -89.50, category: "Utilities", date: "4 days ago", type: "expense", icon: Zap },
-    { id: 14, description: "Restaurant", amount: -42.80, category: "Food", date: "4 days ago", type: "expense", icon: Coffee },
-    { id: 15, description: "Side Project", amount: 275.00, category: "Income", date: "5 days ago", type: "income", icon: Gift }
+    {
+      id: 1,
+      title: "Grocery Store",
+      amount: -85.50,
+      type: "expense",
+      category: { id: 1, name: "Food & Dining", icon: ShoppingCart, color: "bg-orange-500" },
+      description: "Weekly grocery shopping",
+      date: "2024-12-28",
+      location: "Supermarket Plaza",
+      tags: ["groceries", "weekly"],
+      createdAt: "2024-12-28T16:45:00Z"
+    },
+    {
+      id: 2,
+      title: "Salary Deposit",
+      amount: 2600.00,
+      type: "income",
+      category: { id: 11, name: "Salary", icon: Briefcase, color: "bg-green-600" },
+      description: "Monthly salary deposit",
+      date: "2024-12-28",
+      location: "",
+      tags: ["monthly", "salary"],
+      createdAt: "2024-12-28T09:00:00Z"
+    },
+    {
+      id: 3,
+      title: "Coffee Shop",
+      amount: -12.75,
+      type: "expense",
+      category: { id: 1, name: "Food & Dining", icon: Coffee, color: "bg-orange-500" },
+      description: "Morning coffee and pastry",
+      date: "2024-12-28",
+      location: "Downtown Café",
+      tags: ["coffee", "breakfast"],
+      createdAt: "2024-12-28T08:30:00Z"
+    },
+    {
+      id: 4,
+      title: "Uber Ride",
+      amount: -18.30,
+      type: "expense",
+      category: { id: 2, name: "Transportation", icon: Car, color: "bg-blue-500" },
+      description: "Ride to meeting",
+      date: "2024-12-27",
+      location: "Business District",
+      tags: ["uber", "business"],
+      createdAt: "2024-12-27T14:20:00Z"
+    },
+    {
+      id: 5,
+      title: "Freelance Project",
+      amount: 350.00,
+      type: "income",
+      category: { id: 12, name: "Freelance", icon: DollarSign, color: "bg-blue-600" },
+      description: "Web development project",
+      date: "2024-12-27",
+      location: "",
+      tags: ["freelance", "web-dev"],
+      createdAt: "2024-12-27T18:30:00Z"
+    },
+    {
+      id: 6,
+      title: "Gas Station",
+      amount: -45.20,
+      type: "expense",
+      category: { id: 2, name: "Transportation", icon: Car, color: "bg-blue-500" },
+      description: "Fill up gas tank",
+      date: "2024-12-26",
+      location: "Shell Station",
+      tags: ["gas", "car"],
+      createdAt: "2024-12-26T19:15:00Z"
+    }
   ]
 
   const budgetGoals = [
-    { category: "Food", spent: 485, budget: 600, color: "bg-blue-500", icon: Coffee, status: "On Track" },
-    { category: "Transportation", spent: 240, budget: 300, color: "bg-green-500", icon: Car, status: "Good" },
-    { category: "Entertainment", spent: 135, budget: 150, color: "bg-purple-500", icon: Film, status: "Near Limit" },
-    { category: "Shopping", spent: 387, budget: 400, color: "bg-orange-500", icon: ShoppingCart, status: "Warning" },
-    { category: "Healthcare", spent: 125, budget: 200, color: "bg-red-500", icon: Heart, status: "Excellent" },
-    { category: "Education", spent: 89, budget: 150, color: "bg-yellow-500", icon: GraduationCap, status: "Great" },
-    { category: "Utilities", spent: 165, budget: 200, color: "bg-gray-500", icon: Zap, status: "Good" },
-    { category: "Health & Fitness", spent: 99, budget: 120, color: "bg-pink-500", icon: Dumbbell, status: "On Track" },
-    { category: "Investment", spent: 500, budget: 600, color: "bg-indigo-500", icon: TrendingUpDown, status: "Good" },
-    { category: "Miscellaneous", spent: 78, budget: 100, color: "bg-cyan-500", icon: HelpCircle, status: "Excellent" }
+    {
+      id: 1,
+      name: "Food & Dining",
+      icon: Coffee,
+      color: "bg-orange-500",
+      totalSpent: 485.50,
+      budget: 600,
+      transactionCount: 24,
+      percentage: 80.9,
+      description: "Restaurants, groceries, coffee"
+    },
+    {
+      id: 2,
+      name: "Transportation",
+      icon: Car,
+      color: "bg-blue-500",
+      totalSpent: 240.30,
+      budget: 300,
+      transactionCount: 12,
+      percentage: 80.1,
+      description: "Gas, uber, public transport"
+    },
+    {
+      id: 3,
+      name: "Entertainment",
+      icon: Film,
+      color: "bg-purple-500",
+      totalSpent: 135.99,
+      budget: 150,
+      transactionCount: 8,
+      percentage: 90.7,
+      description: "Movies, streaming, games"
+    },
+    {
+      id: 4,
+      name: "Shopping",
+      icon: ShoppingCart,
+      color: "bg-pink-500",
+      totalSpent: 387.89,
+      budget: 400,
+      transactionCount: 15,
+      percentage: 97.0,
+      description: "Clothes, electronics, misc"
+    },
+    {
+      id: 5,
+      name: "Healthcare",
+      icon: Heart,
+      color: "bg-red-500",
+      totalSpent: 125.50,
+      budget: 200,
+      transactionCount: 5,
+      percentage: 62.8,
+      description: "Medical, pharmacy, insurance"
+    },
+    {
+      id: 6,
+      name: "Education",
+      icon: GraduationCap,
+      color: "bg-green-500",
+      totalSpent: 89.99,
+      budget: 150,
+      transactionCount: 3,
+      percentage: 60.0,
+      description: "Courses, books, training"
+    }
   ]
 
   const quickActions = [
@@ -128,6 +237,23 @@ export default function Home() {
 
   const { confirmAndNavigate } = useConfirmNavigation()
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
+
+  const getBudgetStatus = (
+    percentage: number
+  ): { variant: "destructive" | "secondary" | "default" | "outline"; label: string } => {
+    if (percentage >= 90) return { variant: "destructive", label: "Over Budget" }
+    if (percentage >= 80) return { variant: "secondary", label: "Near Limit" }
+    if (percentage >= 60) return { variant: "default", label: "On Track" }
+    return { variant: "outline", label: "Under Budget" }
+  }
+
   return (
     <>
       <Dashboard>
@@ -137,7 +263,6 @@ export default function Home() {
               <h2 className="text-3xl font-bold tracking-tight">Welcome back!</h2>
               <p className="text-muted-foreground">Here's what's happening with your money today.</p>
             </div>
-
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -178,24 +303,56 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-80">
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {recentTransactions.map((transaction) => (
-                      <div key={transaction.id} className="flex items-center justify-between p-3  rounded-lg border hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center space-x-4">
-                          <div className={`w-2 h-8 rounded-full shadow-lg ${transaction.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`} />
-                          <div>
-                            <p className="text-sm font-medium">{transaction.description}</p>
-                            <div className="flex items-center gap-2 mt-1">
-                              <Badge variant={transaction.type === 'income' ? 'default' : 'secondary'} className="text-xs flex items-center gap-1">
-                                <transaction.icon className="h-3 w-3" />
-                                {transaction.category}
+                      <div
+                        key={transaction.id}
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-start sm:items-center gap-4 w-full sm:w-auto">
+                          <div
+                            className={`w-12 h-12 rounded-full ${transaction.category.color} flex items-center justify-center shadow-lg`}
+                          >
+                            <transaction.category.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <h4 className="font-medium">{transaction.title}</h4>
+                              <Badge variant="outline" className="text-xs sm:text-xs">
+                                {transaction.category.name}
                               </Badge>
-                              <span className="text-xs text-muted-foreground">{transaction.date}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-1">{transaction.description}</p>
+                            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {formatDate(transaction.date)}
+                              </div>
+                              {transaction.location && (
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {transaction.location}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
-                        <div className={`text-sm font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                          {transaction.type === 'income' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
+                        <div className="flex items-center gap-3 mt-3 sm:mt-0">
+                          <div className="text-right">
+                            <div
+                              className={`text-lg font-bold ${
+                                transaction.type === "income" ? "text-green-600" : "text-red-600"
+                              }`}
+                            >
+                              {transaction.type === "income" ? "+" : "-"}${Math.abs(transaction.amount).toFixed(2)}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(transaction.createdAt).toLocaleTimeString("en-US", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -214,49 +371,31 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-80">
-                  <div className="space-y-3">
-                    {budgetGoals.map((goal, index) => (
-                      <div key={index} className="space-y-2 p-3 rounded-lg border  hover:bg-gray-50 transition-colors">
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-8 h-8 rounded-full shadow-lg ${goal.color} flex items-center justify-center`}>
-                              <goal.icon className="h-4 w-4 text-white" />
+                  <div className="space-y-4">
+                    {budgetGoals.map((goal) => (
+                      <div key={goal.id} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full ${goal.color} flex items-center justify-center shadow-lg`}>
+                              <goal.icon className="h-5 w-5 text-white" />
                             </div>
-                            <span className="font-medium">{goal.category}</span>
-                            <Badge variant="outline" className="text-xs flex items-center gap-1">
-                              <Target className="h-3 w-3" />
-                              {Math.round((goal.spent / goal.budget) * 100)}%
+                            <div>
+                              <h4 className="font-medium">{goal.name}</h4>
+                              <p className="text-xs text-muted-foreground">{goal.description}</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span>${goal.totalSpent.toFixed(2)} / ${goal.budget.toFixed(2)}</span>
+                            <Badge variant={getBudgetStatus(goal.percentage).variant} className="text-xs">
+                              {Math.round(goal.percentage)}%
                             </Badge>
                           </div>
-                          <span className="text-muted-foreground">
-                            ${goal.spent}/${goal.budget}
-                          </span>
-                        </div>
-                        <Progress
-                          value={(goal.spent / goal.budget) * 100}
-                          className="h-2"
-                        />
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>${goal.budget - goal.spent} remaining</span>
-                          <div className="flex items-center gap-2">
-                            {(goal.spent / goal.budget) > 0.8 && (
-                              <Badge variant="destructive" className="text-xs flex items-center gap-1">
-                                <TrendingUp className="h-3 w-3" />
-                                Near limit
-                              </Badge>
-                            )}
-                            {(goal.spent / goal.budget) > 0.5 && (goal.spent / goal.budget) <= 0.8 && (
-                              <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                On track
-                              </Badge>
-                            )}
-                            {(goal.spent / goal.budget) <= 0.5 && (
-                              <Badge variant="default" className="text-xs bg-green-500 flex items-center gap-1">
-                                <Target className="h-3 w-3" />
-                                {goal.status}
-                              </Badge>
-                            )}
+                          <Progress value={goal.percentage} className="h-2" />
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{goal.transactionCount} transactions</span>
+                            <span>${(goal.budget - goal.totalSpent).toFixed(2)} remaining</span>
                           </div>
                         </div>
                       </div>

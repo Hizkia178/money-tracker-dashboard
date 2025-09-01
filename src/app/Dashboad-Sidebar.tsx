@@ -7,15 +7,11 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import {
     Home,
-    HelpCircle,
     User,
     BarChart3,
     TrendingUp,
-    Mail,
     Settings,
-    RefreshCw,
     Wallet,
-    ArrowLeftRight,
     Calendar,
     Target,
     PlusCircle,
@@ -27,6 +23,7 @@ interface DashboardSidebarProps {
     collapsed: boolean
     onToggle: () => void
 }
+
 const navigationItems = [
     {
         title: "Main",
@@ -50,8 +47,6 @@ const navigationItems = [
         title: "Accounts",
         items: [
             { icon: Wallet, label: "My Wallets / Accounts", href: "/accounts" },
-            { icon: RefreshCw, label: "Recurring Transactions", badge: "0", href: "/recurring" },
-            { icon: ArrowLeftRight, label: "Transfers", href: "/transfers" },
         ],
     },
     {
@@ -59,13 +54,6 @@ const navigationItems = [
         items: [
             { icon: User, label: "Profile", href: "/profile" },
             { icon: Settings, label: "Settings", href: "/settings" },
-        ],
-    },
-    {
-        title: "Extras",
-        items: [
-            { icon: HelpCircle, label: "Help / FAQ", href: "/faq" },
-            { icon: Mail, label: "Contact", href: "/contact" },
         ],
     },
 ]

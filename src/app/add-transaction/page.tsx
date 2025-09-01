@@ -215,16 +215,16 @@ export default function AddTransactions() {
         prev.map(transaction =>
           transaction.id === editingTransaction.id
             ? {
-                ...transaction,
-                title: data.title,
-                amount: parseFloat(data.amount),
-                type: data.type,
-                category: selectedCategory!,
-                description: data.description,
-                date: data.date,
-                location: data.location,
-                tags,
-              }
+              ...transaction,
+              title: data.title,
+              amount: parseFloat(data.amount),
+              type: data.type,
+              category: selectedCategory!,
+              description: data.description,
+              date: data.date,
+              location: data.location,
+              tags,
+            }
             : transaction
         )
       );
@@ -319,7 +319,7 @@ export default function AddTransactions() {
 
   const filteredTransactions = transactions.filter(transaction => {
     const matchesType = filterType === "all" || transaction.type === filterType;
-    const matchesSearch = searchQuery === "" || 
+    const matchesSearch = searchQuery === "" ||
       transaction.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       transaction.category.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -716,7 +716,7 @@ export default function AddTransactions() {
                 <CardTitle>Recent Transactions</CardTitle>
                 <CardDescription>Your latest income and expense transactions</CardDescription>
               </div>
-              <div className="flex gap-2">
+              <div className="hidden sm:flex gap-2">
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -733,8 +733,20 @@ export default function AddTransactions() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="income">Income</SelectItem>
-                    <SelectItem value="expense">Expense</SelectItem>
+                    <SelectItem value="income">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-green-600" />
+                          Income
+                        </div>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="expense">
+                      <div className="flex items-center gap-2">
+                        <TrendingDown className="h-4 w-4 text-red-600" />
+                        Expense
+                      </div>
+                      </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -750,20 +762,25 @@ export default function AddTransactions() {
                 </div>
               ) : (
                 filteredTransactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full ${transaction.category.color} flex items-center justify-center shadow-lg`}>
-                        <transaction.category.icon className="h-6 w-6 text-white" />
+                  <div
+                    key={transaction.id}
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-start sm:items-center gap-4 w-full sm:w-auto">
+                      <div
+                        className={`w-12 h-12 rounded-full ${transaction.category.color} flex items-center justify-center shadow-lg`}
+                      >
+                        <transaction.category.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <h4 className="font-medium">{transaction.title}</h4>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="text-xs sm:text-xs">
                             {transaction.category.name}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mb-1">{transaction.description}</p>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             {formatDate(transaction.date)}
@@ -783,15 +800,18 @@ export default function AddTransactions() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 mt-3 sm:mt-0">
                       <div className="text-right">
-                        <div className={`text-lg font-bold ${transaction.type === "income" ? "text-green-600" : "text-red-600"}`}>
+                        <div
+                          className={`text-lg font-bold ${transaction.type === "income" ? "text-green-600" : "text-red-600"
+                            }`}
+                        >
                           {transaction.type === "income" ? "+" : "-"}${transaction.amount.toFixed(2)}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {new Date(transaction.createdAt).toLocaleTimeString('en-US', {
-                            hour: '2-digit',
-                            minute: '2-digit'
+                          {new Date(transaction.createdAt).toLocaleTimeString("en-US", {
+                            hour: "2-digit",
+                            minute: "2-digit",
                           })}
                         </div>
                       </div>
@@ -815,6 +835,7 @@ export default function AddTransactions() {
                       </div>
                     </div>
                   </div>
+
                 ))
               )}
             </div>

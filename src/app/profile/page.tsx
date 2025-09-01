@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
-  User,
+  IdCard,
   Mail,
   Phone,
   Calendar,
@@ -52,7 +52,7 @@ interface UserProfile {
   occupation: string;
   bio: string;
   dateOfBirth: string;
-  avatar: string;
+  avatar: "";
 }
 
 interface NotificationSettings {
@@ -124,7 +124,7 @@ export default function Profile() {
   });
 
   const tabs = [
-    { value: "profile", label: "Profile", icon: User },
+    { value: "profile", label: "Profile", icon: IdCard },
     { value: "security", label: "Security", icon: Shield },
     { value: "notifications", label: "Notifications", icon: Bell },
   ];
@@ -234,7 +234,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-2">
                     <CardTitle className="flex items-center gap-2">
-                      <User className="h-5 w-5" />
+                      <IdCard className="h-5 w-5" />
                       Personal Information
                     </CardTitle>
                     <CardDescription>Update your personal details and profile information</CardDescription>
@@ -594,7 +594,7 @@ export default function Profile() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+              <IdCard className="h-5 w-5" />
               Account Summary
             </CardTitle>
             <CardDescription>Quick overview of your account status</CardDescription>

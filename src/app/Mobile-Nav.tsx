@@ -7,56 +7,46 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { VisuallyHidden } from "@/lib/visually-hidden"
 import Link from "next/link"
-import { ArrowLeftRight, Calendar, List, Mail, Menu, PieChart, PlusCircle, RefreshCw, Settings, Target, Wallet } from "lucide-react"
+import { Calendar, List, Menu, PieChart, PlusCircle, Settings, Target, Wallet } from "lucide-react"
 import {
     Home,
-    HelpCircle,
     User,
     BarChart3,
     TrendingUp,
 } from "lucide-react"
 
 const navigationItems = [
-  {
-    title: "Main",
-    items: [
-      { icon: Home, label: "Dashboard", badge: "0", href: "/" },
-      { icon: PlusCircle, label: "Add Transaction", href: "/add-transaction" },
-      { icon: List, label: "All Transactions", badge: "0", href: "/transactions" },
-      { icon: PieChart, label: "Categories", href: "/categories" },
-    ],
-  },
-  {
-    title: "Reports & Insights",
-    items: [
-      { icon: BarChart3, label: "Monthly Report", href: "/reports/monthly" },
-      { icon: Calendar, label: "Yearly Report", href: "/reports/yearly" },
-      { icon: TrendingUp, label: "Spending Trends", href: "/reports/trends" },
-      { icon: Target, label: "Budget Goals", badge: "0", href: "/budget-goals" },
-    ],
-  },
-  {
-    title: "Accounts",
-    items: [
-      { icon: Wallet, label: "My Wallets / Accounts", href: "/accounts" },
-      { icon: RefreshCw, label: "Recurring Transactions", badge: "0", href: "/recurring" },
-      { icon: ArrowLeftRight, label: "Transfers", href: "/transfers" },
-    ],
-  },
-  {
-    title: "User",
-    items: [
-      { icon: User, label: "Profile", href: "/profile" },
-      { icon: Settings, label: "Settings", href: "/settings" },
-    ],
-  },
-  {
-    title: "Extras",
-    items: [
-      { icon: HelpCircle, label: "Help / FAQ", href: "/faq" },
-      { icon: Mail, label: "Contact", href: "/contact" },
-    ],
-  },
+    {
+        title: "Main",
+        items: [
+            { icon: Home, label: "Dashboard", badge: "0", href: "/" },
+            { icon: PlusCircle, label: "Add Transaction", href: "/add-transaction" },
+            { icon: List, label: "All Transactions", badge: "0", href: "/transactions" },
+            { icon: PieChart, label: "Categories", href: "/categories" },
+        ],
+    },
+    {
+        title: "Reports & Insights",
+        items: [
+            { icon: BarChart3, label: "Monthly Report", href: "/reports/monthly" },
+            { icon: Calendar, label: "Yearly Report", href: "/reports/yearly" },
+            { icon: TrendingUp, label: "Spending Trends", href: "/reports/trends" },
+            { icon: Target, label: "Budget Goals", badge: "0", href: "/budget-goals" },
+        ],
+    },
+    {
+        title: "Accounts",
+        items: [
+            { icon: Wallet, label: "My Wallets / Accounts", href: "/accounts" },
+        ],
+    },
+    {
+        title: "User",
+        items: [
+            { icon: User, label: "Profile", href: "/profile" },
+            { icon: Settings, label: "Settings", href: "/settings" },
+        ],
+    },
 ]
 
 export function MobileNav() {
